@@ -104,5 +104,23 @@ next_palin2(N, B) ->
         true ->
             next_palin2(N+1, palindrome(N+1))
     end.
+%
+% returns N fibonacci numbers.
+%
+fib(N) ->
+    fib2([], N).
 
-    
+fib2(A, N) ->
+    if
+        N == 0 ->
+            lists:reverse(A);
+        true ->
+            case length(A) of
+                0 ->
+                    fib2([1], N-1);
+                1 ->
+                    fib2([1 | A], N-1);
+                _ ->
+                    fib2([hd(A) + hd(tl(A)) | A], N-1)
+            end
+    end.
