@@ -66,61 +66,43 @@ greater_than2(H, [H1 | T1], C) ->
 % Issue: THIS IS NOT WORKING :(
 %
 two_sum() ->
-    {ok, A} = io:fread("Enter first number>", "~d"),
-    io:format("You entered ~p~n", A),
-    {ok, B} = io:fread("Enter second number>", "~d"),
-    io:format("You entered ~p~n", B),
+    {ok, [A]} = io:fread("Enter first number>", "~d"),
+    io:format("You entered ~p~n", [A]),
+    {ok, [B]} = io:fread("Enter second number>", "~d"),
+    io:format("You entered ~p~n", [B]),
     C = A + B,
-    io:format("Sum of the two numbers: ~p~n", C).
+    io:format("Sum of the two numbers: ~p~n", [C]).
 %
-% Returns true if provided string is a palindrome.
+% Returns true if provided string or number is a palindrome.
 % Issue: Raises "** exception error: bad argument" for floats
 %
 palindrome([]) -> true;
-palindrome([_H]) -> true;
 palindrome([H | T]) ->
     L = [H | T],
-    MID = length(L),
-    if
-        MID rem 2 == 0 ->
-            MID1 = MID div 2;
-        true ->
-            MID1 = (MID div 2) + 1
-    end,
-    SECOND_HALF = lists:nthtail(MID1, L),
-    lists:prefix(lists:reverse(SECOND_HALF), L);
+    L == lists:reverse(L);
 palindrome(N) ->
     palindrome(integer_to_list(N)).
 %
 % Generates the smallest palindrome number greater than the input number
 %
 next_palin(N) ->
-    next_palin2(N, false).
-
-next_palin2(N, B) ->
+    Result = palindrome(N),
     if
-        B ->
+        Result ->
             N;
         true ->
-            next_palin2(N+1, palindrome(N+1))
+            next_palin(N+1)
     end.
 %
 % returns N fibonacci numbers.
 %
-fib(N) ->
-    fib2([], N).
+fibonacci(1) -> [1];
+fibonacci(2) -> [1, 1];
+fibonacci(N) -> fibonacci(1, 1, [1, 1], N).
 
-fib2(A, N) ->
-    if
-        N == 0 ->
-            lists:reverse(A);
-        true ->
-            case length(A) of
-                0 ->
-                    fib2([1], N-1);
-                1 ->
-                    fib2([1 | A], N-1);
-                _ ->
-                    fib2([hd(A) + hd(tl(A)) | A], N-1)
-            end
-    end.
+fibonacci(_Prev1, _Curr1, Num1, Count) when length(Num1) =:= Count ->
+    lists:reverse(Num1);
+fibonacci(Prev1, Curr1, Num1, Count) ->
+    Next1 = Prev1 + Curr1,
+    fibonacci(Curr1, Next1, [Next1 | Num1], Count).
+%
