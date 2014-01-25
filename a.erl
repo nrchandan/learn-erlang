@@ -11,11 +11,11 @@ sum([H | T]) -> H + sum(T).
 %
 reverse([]) -> [];
 reverse([H | T]) ->
-    reverse2([H | T], []).
+    reverse([H | T], []).
 
-reverse2([], C) -> C;
-reverse2([H | T], C) ->
-    reverse2(T, [H | C]).
+reverse([], C) -> C;
+reverse([H | T], C) ->
+    reverse(T, [H | C]).
 %
 % Computes area
 %
@@ -80,7 +80,7 @@ palindrome([]) -> true;
 palindrome([H | T]) ->
     L = [H | T],
     L == lists:reverse(L);
-palindrome(N) ->
+palindrome(N) when is_integer(N) ->
     palindrome(integer_to_list(N)).
 %
 % Generates the smallest palindrome number greater than the input number
@@ -100,9 +100,186 @@ fibonacci(1) -> [1];
 fibonacci(2) -> [1, 1];
 fibonacci(N) -> fibonacci(1, 1, [1, 1], N).
 
-fibonacci(_Prev1, _Curr1, Num1, Count) when length(Num1) =:= Count ->
+fibonacci(_Prev, _Curr, Num1, Count) when length(Num1) =:= Count ->
     lists:reverse(Num1);
-fibonacci(Prev1, Curr1, Num1, Count) ->
-    Next1 = Prev1 + Curr1,
-    fibonacci(Curr1, Next1, [Next1 | Num1], Count).
+fibonacci(Prev, Curr, Num1, Count) ->
+    Next1 = Prev + Curr,
+    fibonacci(Curr, Next1, [Next1 | Num1], Count).
 %
+% prints a triangle of stars e.g. print_stars(3) gives this:
+% ***
+% **
+% *
+print_stars(0) -> ok;
+print_stars(N) ->
+    print_stars_row(N),
+    io:format("\n"),
+    print_stars(N-1).
+%
+print_stars_row(0) -> ok;
+print_stars_row(N) ->
+    io:format("*"),
+    print_stars_row(N-1).
+%
+% prints a triangle of stars e.g. print_stars(3) gives this:
+% ***
+%  **
+%   *
+print_stars2(0) -> ok;
+print_stars2(N) ->
+    print_stars2(N, 0).
+%
+print_stars2(0, _) -> ok;
+print_stars2(N, S) ->
+    print_spaces_row(S),
+    print_stars_row(N),
+    io:format("\n"),
+    print_stars2(N-1, S+1).
+%
+print_spaces_row(0) -> ok;
+print_spaces_row(N) ->
+    io:format(" "),
+    print_spaces_row(N-1).
+    
+%
+% Finds and prints the smallest fibonacci number that shares a common
+% factor with the input number 'k'
+% DEBUG THIS.
+%
+find_fib_factor(K) ->
+    find_fib_factor(K, 1, 2).
+
+find_fib_factor(K, Prev, Curr) ->
+    A = find_fib_factor(K, Prev, Curr, 2),
+    if
+        A == 0 ->
+            find_fib_factor(K, Curr, Prev + Curr, 2);
+        true ->
+            A
+    end.
+
+find_fib_factor(K, Prev, Curr, N) ->
+    if
+        (N rem K == 0) and (N rem Curr == 0) ->
+            N;
+        N == K ->
+            0;
+        true ->
+            find_fib_factor(K, Prev, Curr, N+1)
+    end.
+
+%
+% Simple factorial
+%
+factorial1(0) -> 1;
+factorial1(N) ->
+    N * factorial1(N-1).
+%
+% Tail recursive factorial
+%
+factorial(0) -> 1;
+factorial(N) ->
+    factorial(N, 1).
+
+factorial(0, C) -> C;
+factorial(N, C) ->
+    factorial(N-1, C*N).
+%
+%
+%
+is_prime(N) ->
+    is_prime(N, 2).
+
+is_prime(N, C) ->
+    if
+        N == C ->
+            true;
+        N rem C == 0 ->
+            false;
+        true ->
+            is_prime(N, C+1)
+    end.
+%
+% Returns smallest prime number greater than N
+%
+next_prime(N) ->
+    B = is_prime(N+1),
+    if
+        B ->
+            N+1;
+        true ->
+            next_prime(N+1)
+    end.
+%
+%
+%
+fib(0) -> 1;
+fib(1) -> 1;
+fib(N) -> fib(1, 1, N-2).
+
+fib(_Prev, Curr, 0) ->
+    Curr;
+fib(Prev, Curr, N) ->
+   fib(Curr, Prev + Curr, N-1).
+%
+% Returns list of elements smaller than N that are multiples of 3 or 5 
+% DEBUG THIS.  
+%
+mult35(N) ->
+    mult35(N, []).
+
+mult35(N, L) ->
+    if
+        N == 0 ->
+            L;
+        (N rem 3 =:= 0) or (L rem 5 =:= 0) ->
+            io:format(N),
+            mult35(N, [N | L]);
+        true ->
+            mult35(N-1, L)
+    end.
+%
+%
+%
+sum_mult35(N) ->
+    lists:sum([X || X <- lists:seq(1, N-1), (X rem 3 ==0) or (X rem 5 == 0)]).
+%
+%
+%
+pythogorean(N) -> 
+    [{A, B, C} || A <- lists:seq(1, N),
+                    B <- lists:seq(1, N),
+                    C <- lists:seq(1, N),
+                    A >= B,
+                    B >= C,
+                    A < B + C,
+                    A*A =:= B*B + C*C].
+%
+%
+%
+fibo(_P, C, S) when C > 4000000 -> S;
+fibo(P, C, S) when (C rem 2) =:= 0 -> fibo(C, P+C, S+C);
+fibo(P, C, S) -> fibo(C, P+C, S).
+%
+% Largest Prime Factor
+%
+prime_factor(N) -> prime_factor(N, 2, []).
+prime_factor(N, C, L) ->
+    R = is_prime(C),
+    if
+        C > N ->
+            L;
+        R and (N rem C) =:= 0 ->
+            prime_factor(N, C+1, [C | L]);
+        true ->
+            prime_factor(N, C+1, L)
+    end.
+%
+%
+%
+prime_factors(N) -> [X || X <- lists:seq(2, N-1), (N rem X) =:= 0, is_prime(X)].
+prime_factors_max(N) -> lists:max([X || X <- lists:seq(2, N-1), (N rem X) =:= 0, is_prime(X)]).
+%
+% Returns all primes less than N
+%
+%primes_upto(N) ->
