@@ -190,15 +190,19 @@ factorial(N, C) ->
 is_prime(N) ->
     is_prime(N, 2).
 
-is_prime(N, C) ->
-    if
-        N == C ->
-            true;
-        N rem C == 0 ->
-            false;
-        true ->
-            is_prime(N, C+1)
-    end.
+is_prime(N, C) when C*C > N -> true;
+is_prime(N, C) when N rem C =:= 0 -> false;
+is_prime(N, C) -> is_prime(N, C+1).
+%
+%
+%
+%primeis(N, C, _L) when C*C > N -> true;
+%primeis(N, C, _L) when N rem C =:= 0 -> false;
+%primeis(N, C, []) ->
+
+
+
+    
 %
 % Returns smallest prime number greater than N
 %
@@ -277,9 +281,49 @@ prime_factor(N, C, L) ->
 %
 %
 %
-prime_factors(N) -> [X || X <- lists:seq(2, N-1), (N rem X) =:= 0, is_prime(X)].
-prime_factors_max(N) -> lists:max([X || X <- lists:seq(2, N-1), (N rem X) =:= 0, is_prime(X)]).
+prime_factors(N) -> [X || X <- lists:seq(2, round(math:sqrt(N))),
+                                (N rem X) =:= 0,
+                                is_prime(X)].
+prime_factors_max(N) -> lists:max(prime_factors(N)).
 %
 % Returns all primes less than N
 %
-%primes_upto(N) ->
+first_palin([H | T]) ->
+    R = palindrome(H),
+    if
+        R ->
+            H;
+        true ->
+            first_palin(T)
+    end.
+
+%
+% Segmenting the find by S -> 9 to 1; processing 10% at a time
+%
+largest_palin_product(_N, S) when S =:= 0 -> false;
+largest_palin_product(N, S) ->
+    L = S * round(math:pow(10, N-1)),
+    H = ((S + 1) * round(math:pow(10, N-1))) - 1,
+    A = [X * Y || X <- lists:seq(L, H), Y <- lists:seq(L, H)],
+    Result = lists:any(fun(X) -> palindrome(X) end, A),
+    if
+        Result ->
+            first_palin(lists:reverse(lists:sort(A)));
+        true ->
+            largest_palin_product(N, S-1)
+    end.
+%
+%
+%
+primes_upto(1, C) -> C;
+primes_upto(N, C) ->
+    R = is_prime(N),
+    if
+        R ->
+            primes_upto(N-1, C+1);
+        true ->
+            primes_upto(N-1, C)
+    end.
+%
+%
+%
