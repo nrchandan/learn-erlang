@@ -305,7 +305,7 @@ largest_palin_product(N, S) ->
     L = S * round(math:pow(10, N-1)),
     H = ((S + 1) * round(math:pow(10, N-1))) - 1,
     A = [X * Y || X <- lists:seq(L, H), Y <- lists:seq(L, H)],
-    Result = lists:any(fun(X) -> palindrome(X) end, A),
+    Result = lists:any(fun palindrome/1, A),
     if
         Result ->
             first_palin(lists:reverse(lists:sort(A)));
@@ -315,6 +315,7 @@ largest_palin_product(N, S) ->
 %
 %
 %
+primes_upto(N) -> primes_upto(N, 0).
 primes_upto(1, C) -> C;
 primes_upto(N, C) ->
     R = is_prime(N),
@@ -327,3 +328,40 @@ primes_upto(N, C) ->
 %
 %
 %
+primes_to(N) -> primes_to(N, 2, [], 0).
+primes_to(N, Next, _List, Count) when Next > N -> 
+    %io:format("~p~n", List),
+    Count;
+primes_to(N, Next, List, Count) ->
+    IsNotPrime = not prime_is(Next, List),
+    %SmallerList = lists:reverse([X || X <- List, X*X =< Next]),
+    %IsNotPrime = lists:any(fun(X) -> (Next rem X) =:= 0 end, SmallerList),
+    if
+        IsNotPrime ->
+            primes_to(N, Next+1, List, Count);
+        true ->
+            %io:format("~p ~p ~p~n", [N,Next+1,Count+1]),
+            primes_to(N, Next+1, List ++ [Next], Count+1)
+    end.
+
+prime_is(_N, []) -> true;
+prime_is(N, [H | _T]) when N < H*H -> true;
+prime_is(N, [H | _T]) when N rem H =:= 0 -> false;
+prime_is(N, [_H | T]) -> prime_is(N, T).
+
+main(N) -> 
+    length([X || X<-lists:seq(2, N), is_prime(X)]).
+%
+% Max of a list 
+%
+max(L) -> lists:foldl(fun(A, B) -> if A > B -> A; true -> B end end, hd(L), tl(L)).
+%
+% Factorial of a number
+%
+fact(X) -> lists:foldl(fun(A, B) -> A * B end, 1, lists:seq(1, X)).
+%
+% Filter using foldl and map
+%
+
+
+
